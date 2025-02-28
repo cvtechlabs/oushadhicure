@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:admin/utility/constants.dart';
 import 'package:admin/models/category.dart';
-import 'add_category_form.dart';
+import 'category_submit_form.dart';
 import '../provider/category_provider.dart';
 
 class CategoryListSection extends StatefulWidget {
@@ -383,12 +383,10 @@ class _CategoryListSectionState extends State<CategoryListSection> {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          // Edit button: Opens the add/edit category form for editing.
           IconButton(
             icon: Icon(Icons.edit, color: sbColor),
-            onPressed: () => showAddCategoryForm(context, catInfo),
+            onPressed: () => showAddCategoryForm(context, catInfo), // Pass catInfo here
           ),
-          // Delete button: Deletes the category from the data provider.
           IconButton(
             icon: Icon(Icons.delete, color: cbColor),
             onPressed: () =>
@@ -397,5 +395,4 @@ class _CategoryListSectionState extends State<CategoryListSection> {
         ],
       ),
     );
-  }
-}
+  }}

@@ -9,7 +9,6 @@ import 'package:admin/models/category.dart';
 import 'package:admin/models/api_response.dart';
 import 'package:admin/utility/snack_bar_helper.dart';
 
-
 class CategoryProvider extends ChangeNotifier {
   HttpService service = HttpService();
   final DataProvider _dataProvider;
@@ -17,41 +16,45 @@ class CategoryProvider extends ChangeNotifier {
   TextEditingController categoryNameCtrl = TextEditingController();
   Category? categoryForUpdate;
 
-
   File? selectedImage;
   XFile? imgXFile;
 
+  List<Category> filteredCategories = [];
 
   CategoryProvider(this._dataProvider);
 
-  addCategory() async{
-    try{
-      if(selectedImage == null){
+  addCategory() async {
+    try {
+      if (selectedImage == null) {
         SnackBarHelper.showErrorSnackBar('Please Choose An Image !');
-        return; //? stop the program eviction
+        return;
       }
-      Map<String, dynamic> formDataMap = {'name' : categoryNameCtrl.text,
-        'image' : 'no_data', //? image path will add from server side
+      if (categoryNameCtrl.text.isEmpty) {
+        SnackBarHelper.showErrorSnackBar('Please Enter a Category Name !');
+        return;
+      }
+      Map<String, dynamic> formDataMap = {
+        'name': categoryNameCtrl.text,
+        'image': 'no_data',
       };
 
       final FormData form = await createFormData(imgXFile: imgXFile, formData: formDataMap);
 
-      final response = await service.addItem(endpointUrl: 'categories', itemData: form) ;
+      final response = await service.addItem(endpointUrl: 'categories', itemData: form);
       if (response.isOk) {
         ApiResponse apiResponse = ApiResponse.fromJson(response.body, null);
         if (apiResponse.success == true) {
           clearFields();
           SnackBarHelper.showSuccessSnackBar('${apiResponse.message}');
           _dataProvider.getAllCategory();
-          //log('category added');
         } else {
-          SnackBarHelper.showErrorSnackBar('Failed to add Category : ${apiResponse.message}' );
+          SnackBarHelper.showErrorSnackBar('Failed to add Category : ${apiResponse.message}');
         }
       } else {
-        SnackBarHelper.showErrorSnackBar('Error ${response.body?['message'] ?? response.statusText}' );
+        SnackBarHelper.showErrorSnackBar('Error ${response.body?['message'] ?? response.statusText}');
       }
     } catch (e) {
-      print (e);
+      print(e);
       SnackBarHelper.showErrorSnackBar('An error occurred : $e');
       rethrow;
     }
@@ -60,29 +63,28 @@ class CategoryProvider extends ChangeNotifier {
   updateCategory() async {
     try {
       Map<String, dynamic> formDataMap = {
-        'name' : categoryNameCtrl.text,
-        'image' : categoryForUpdate?.image ?? '',
+        'name': categoryNameCtrl.text,
+        'image': categoryForUpdate?.image ?? '',
       };
 
       final FormData form = await createFormData(imgXFile: imgXFile, formData: formDataMap);
 
-      final response =
-          await service.updateItem(endpointUrl: 'categories', itemData: form, itemId: categoryForUpdate?.sId ?? '');
+      final response = await service.updateItem(endpointUrl: 'categories', itemData: form, itemId: categoryForUpdate?.sId ?? '');
+
       if (response.isOk) {
         ApiResponse apiResponse = ApiResponse.fromJson(response.body, null);
         if (apiResponse.success == true) {
           clearFields();
           SnackBarHelper.showSuccessSnackBar('${apiResponse.message}');
           _dataProvider.getAllCategory();
-          //log('category added');
         } else {
-          SnackBarHelper.showErrorSnackBar('Failed to add Category : ${apiResponse.message}' );
+          SnackBarHelper.showErrorSnackBar('Failed to add Category : ${apiResponse.message}');
         }
       } else {
-        SnackBarHelper.showErrorSnackBar('Error ${response.body?['message'] ?? response.statusText}' );
+        SnackBarHelper.showErrorSnackBar('Error ${response.body?['message'] ?? response.statusText}');
       }
-    }catch (e) {
-      print (e);
+    } catch (e) {
+      print(e);
       SnackBarHelper.showErrorSnackBar('An error occurred : $e');
       rethrow;
     }
@@ -98,7 +100,7 @@ class CategoryProvider extends ChangeNotifier {
     try {
       Map<String, dynamic> formDataMap = {
         'name': newName,
-        'image': currentImage ?? '', // Include the current image
+        'image': currentImage ?? '',
       };
 
       final FormData form = FormData(formDataMap);
@@ -115,12 +117,10 @@ class CategoryProvider extends ChangeNotifier {
           SnackBarHelper.showSuccessSnackBar('${apiResponse.message}');
           _dataProvider.getAllCategory();
         } else {
-          SnackBarHelper.showErrorSnackBar(
-              'Failed to update Category Name: ${apiResponse.message}');
+          SnackBarHelper.showErrorSnackBar('Failed to update Category Name: ${apiResponse.message}');
         }
       } else {
-        SnackBarHelper.showErrorSnackBar(
-            'Error ${response.body?['message'] ?? response.statusText}');
+        SnackBarHelper.showErrorSnackBar('Error ${response.body?['message'] ?? response.statusText}');
       }
     } catch (e) {
       print(e);
@@ -129,8 +129,7 @@ class CategoryProvider extends ChangeNotifier {
     }
   }
 
-
-  submitCategory(){
+  submitCategory() {
     if (categoryForUpdate != null) {
       updateCategory();
     } else {
@@ -150,7 +149,7 @@ class CategoryProvider extends ChangeNotifier {
 
   deleteCategory(Category category) async {
     try {
-      Response response = await service.deleteItem(endpointUrl: 'categories',  itemId: category.sId ?? '');
+      Response response = await service.deleteItem(endpointUrl: 'categories', itemId: category.sId ?? '');
       if (response.isOk) {
         ApiResponse apiResponse = ApiResponse.fromJson(response.body, null);
         if (apiResponse.success == true) {
@@ -158,16 +157,14 @@ class CategoryProvider extends ChangeNotifier {
           _dataProvider.getAllCategory();
         }
       } else {
-        SnackBarHelper.showErrorSnackBar('Error ${response.body?['message'] ?? response.statusText}' );
+        SnackBarHelper.showErrorSnackBar('Error ${response.body?['message'] ?? response.statusText}');
       }
-    }catch (e) {
-      print (e);
+    } catch (e) {
+      print(e);
       rethrow;
     }
   }
 
-
-  //? to create form data for sending image with body
   Future<FormData> createFormData({required XFile? imgXFile, required Map<String, dynamic> formData}) async {
     if (imgXFile != null) {
       MultipartFile multipartFile;
@@ -185,7 +182,6 @@ class CategoryProvider extends ChangeNotifier {
     return form;
   }
 
-  //? set data for update on editing
   setDataForUpdateCategory(Category? category) {
     if (category != null) {
       clearFields();
@@ -196,7 +192,6 @@ class CategoryProvider extends ChangeNotifier {
     }
   }
 
-  //? to clear text field and images after adding or update category
   clearFields() {
     categoryNameCtrl.clear();
     selectedImage = null;
@@ -204,4 +199,14 @@ class CategoryProvider extends ChangeNotifier {
     categoryForUpdate = null;
   }
 
+  void filterCategories(String query, List<Category> allCategories) {
+    if (query.isEmpty) {
+      filteredCategories = [];
+    } else {
+      filteredCategories = allCategories
+          .where((category) => (category.name ?? '').toLowerCase().contains(query.toLowerCase()))
+          .toList();
+    }
+    notifyListeners();
+  }
 }
